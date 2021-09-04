@@ -1,0 +1,30 @@
+version: '3'
+services:
+    api:
+        image: php:8.0-alpine
+        ports:
+            - '8080:80'
+        volumes:
+            -   './:/var/www/app:rw'
+        working_dir: '/var/www/app'
+        command: 'php artisan serve --host=0.0.0.0 --port=80'
+
+    db:
+        image: mysql:8.0.26
+        ports:
+            -   '3306:3306'
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: app
+            MYSQL_USER: app
+            MYSQL_PASSWORD: app
+
+    db_test:
+        image: mysql:8.0.26
+        ports:
+            -   '3307:3306'
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: app
+            MYSQL_USER: app
+            MYSQL_PASSWORD: app
