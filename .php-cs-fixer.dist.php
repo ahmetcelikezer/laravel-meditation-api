@@ -22,6 +22,7 @@ $config->setRiskyAllowed(true);
 $config->setFinder($finder);
 $config->setRules([
     '@PhpCsFixer' => true,
+    'php_unit_method_casing' => ['case' => 'snake_case'],
 ]);
 $config->setUsingCache(true);
 
