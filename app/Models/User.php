@@ -2,16 +2,21 @@
 
 namespace App\Models;
 
+use Illuminate\Auth\Authenticatable;
+use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\Access\Authorizable;
+use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable
+class User extends Model implements AuthenticatableContract, AuthorizableContract
 {
+    use Authenticatable;
+    use Authorizable;
     use HasApiTokens;
     use HasFactory;
-    use Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -19,7 +24,6 @@ class User extends Authenticatable
      * @var string[]
      */
     protected $fillable = [
-        'name',
         'email',
         'password',
     ];
@@ -31,15 +35,14 @@ class User extends Authenticatable
      */
     protected $hidden = [
         'password',
-        'remember_token',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array
-     */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-    ];
+    public static function boot(): void
+    {
+        parent::boot();
+
+        static::creating(static function (Model $model) {
+            $model->{$model->getKeyName()} = (string) Str::uuid();
+        });
+    }
 }
