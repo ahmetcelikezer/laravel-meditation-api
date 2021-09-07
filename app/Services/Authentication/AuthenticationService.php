@@ -3,6 +3,7 @@
 namespace App\Services\Authentication;
 
 use App\DataTransferObjects\LoginDTO;
+use App\DataTransferObjects\RegisterDTO;
 use App\Models\User;
 use App\Services\Authentication\Exception\InvalidCredentialsException;
 use App\Services\UserService;
@@ -40,7 +41,19 @@ class AuthenticationService
         return $this->request->user()->currentAccessToken()->delete() ?? true;
     }
 
-    public function createAccessToken(User $user): string
+    public function register(RegisterDTO $registerDTO): AuthenticatedUser
+    {
+        $user = $this->userService->create([
+            'email' => $registerDTO->email,
+            'password' => $registerDTO->password,
+        ]);
+
+        $accessToken = $this->createAccessToken($user);
+
+        return new AuthenticatedUser($user, $accessToken);
+    }
+
+    private function createAccessToken(User $user): string
     {
         return $user->createToken(
             $this->request->getClientIp() ?? $user->getAttribute('email')

@@ -2,29 +2,27 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\DataTransferObjects\RegisterDTO;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RegisterRequest;
-use App\Models\User;
+use App\Services\Authentication\AuthenticationService;
+use App\Traits\Response\WithAuthResponses;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Hash;
 
 class RegisterController extends Controller
 {
+    use WithAuthResponses;
+
+    public function __construct(private AuthenticationService $authenticationService)
+    {
+    }
+
     public function handle(RegisterRequest $request): JsonResponse
     {
-        $data = $request->validated();
+        $data = RegisterDTO::fromArray($request->validated());
 
-        /** @var User $user */
-        $user = User::create([
-            'email' => $data['email'],
-            'password' => Hash::make($data['password']),
-        ]);
+        $authenticatedUser = $this->authenticationService->register($data);
 
-        $accessToken = $user->createToken($request->getClientIp() ?? $data['email']);
-
-        return response()->json([
-            'access_token' => $accessToken->plainTextToken,
-            'user' => $user,
-        ], JsonResponse::HTTP_CREATED);
+        return $this->createAuthResponse($authenticatedUser->user, $authenticatedUser->token);
     }
 }
