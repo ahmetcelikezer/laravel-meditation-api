@@ -17,6 +17,7 @@ abstract class TestCase extends BaseTestCase
 
     protected const REGISTER_PATH = '/api/v1/auth/register';
     protected const LOGIN_PATH = '/api/v1/auth/login';
+    protected const LOGOUT_PATH = '/api/v1/auth/logout';
 
     protected function createUser(string $email, string $password): User
     {
@@ -47,5 +48,10 @@ abstract class TestCase extends BaseTestCase
             'email' => $email,
             'password' => $password,
         ]);
+    }
+
+    protected function logoutUser(string $token): TestResponse
+    {
+        return $this->withToken($token)->postJson(self::LOGOUT_PATH);
     }
 }
