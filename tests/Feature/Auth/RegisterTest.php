@@ -1,10 +1,7 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\Auth;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
 
 /**
@@ -13,12 +10,6 @@ use Tests\TestCase;
  */
 class RegisterTest extends TestCase
 {
-    use RefreshDatabase;
-    use WithFaker;
-
-    private const REGISTER_PATH = '/api/v1/auth/register';
-    private const LOGIN_PATH = '/api/v1/auth/login';
-
     public function test_register_user_successfully(): void
     {
         $email = $this->faker('tr_TR')->email();
@@ -98,20 +89,5 @@ class RegisterTest extends TestCase
                 422,
             ],
         ];
-    }
-
-    private function registerUser(string $email, string $password): TestResponse
-    {
-        return $this->postJson(self::REGISTER_PATH, [
-            'email' => $email,
-            'password' => $password,
-        ]);
-    }
-
-    private function getTokenFromResponse(TestResponse $response): ?string
-    {
-        $content = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
-
-        return $content['access_token'] ?? null;
     }
 }
