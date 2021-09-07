@@ -20,6 +20,10 @@ abstract class TestCase extends BaseTestCase
     protected function createUser(string $email, string $password): User
     {
         return User::create([
+            'email' => $email,
+            'password' => Hash::make($password),
+        ]);
+    }
 
     protected function getTokenFromResponse(TestResponse $response): ?string
     {
