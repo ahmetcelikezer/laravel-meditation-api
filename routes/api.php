@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use Illuminate\Support\Facades\Route;
 
@@ -17,5 +18,6 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('v1')->group(static function () {
     Route::prefix('auth')->group(static function () {
         Route::post('/register', [RegisterController::class, 'handle'])->middleware('without_token');
+        Route::post('/login', [LoginController::class, 'handle'])->middleware('without_token');
     });
 });

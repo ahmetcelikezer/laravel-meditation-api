@@ -16,6 +16,7 @@ abstract class TestCase extends BaseTestCase
     use WithFaker;
 
     protected const REGISTER_PATH = '/api/v1/auth/register';
+    protected const LOGIN_PATH = '/api/v1/auth/login';
 
     protected function createUser(string $email, string $password): User
     {
@@ -31,6 +32,10 @@ abstract class TestCase extends BaseTestCase
 
         return $content['access_token'] ?? null;
     }
+
+    protected function loginUser(string $email, string $password): TestResponse
+    {
+        return $this->postJson(self::LOGIN_PATH, [
             'email' => $email,
             'password' => $password,
         ]);
