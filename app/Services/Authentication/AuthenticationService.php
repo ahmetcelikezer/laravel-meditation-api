@@ -53,6 +53,11 @@ class AuthenticationService
         return new AuthenticatedUser($user, $accessToken);
     }
 
+    public function getCurrentUser(): ?User
+    {
+        return $this->request->user();
+    }
+
     private function createAccessToken(User $user): string
     {
         return $user->createToken(
