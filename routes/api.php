@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Meditation\MeditationController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -21,5 +22,11 @@ Route::prefix('v1')->group(static function () {
         Route::post('/register', [RegisterController::class, 'handle'])->middleware('without_token');
         Route::post('/login', [LoginController::class, 'handle'])->middleware('without_token');
         Route::post('/logout', [LogoutController::class, 'handle'])->middleware('auth:sanctum');
+    });
+
+    Route::middleware('auth:sanctum')->group(static function () {
+        Route::prefix('meditation')->group(static function () {
+            Route::post('/complete/{meditation}', [MeditationController::class, 'completeAction']);
+        });
     });
 });
