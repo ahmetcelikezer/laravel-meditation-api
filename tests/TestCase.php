@@ -2,7 +2,10 @@
 
 namespace Tests;
 
+use App\Models\Meditation;
 use App\Models\User;
+use App\Models\UserMeditation;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -19,9 +22,18 @@ abstract class TestCase extends BaseTestCase
     protected const LOGIN_PATH = '/api/v1/auth/login';
     protected const LOGOUT_PATH = '/api/v1/auth/logout';
     protected const COMPLETE_MEDITATION_PATH = '/api/v1/meditation/complete';
+    protected const MONTHLY_DAY_REPORT_PATH = '/api/v1/meditation/report/active_days_in_month';
 
-    protected function createUser(string $email, string $password): User
+    protected function createUser(?string $email = null, ?string $password = null): User
     {
+        if (!$email) {
+            $email = $this->faker('tr_TR')->email();
+        }
+
+        if (!$password) {
+            $password = $this->faker('tr_TR')->password(8);
+        }
+
         return User::create([
             'email' => $email,
             'password' => Hash::make($password),
@@ -66,5 +78,42 @@ abstract class TestCase extends BaseTestCase
         $authenticatedUser = $this->loginUser($email, $password);
 
         return $this->getTokenFromResponse($authenticatedUser);
+    }
+
+    protected function createAuthenticatedUserWithToken(): array
+    {
+        $email = $this->faker('tr_TR')->email();
+        $password = $this->faker('tr_TR')->password(8);
+
+        $user = $this->createUser($email, $password);
+
+        $authenticatedUser = $this->loginUser($email, $password);
+        $token = $this->getTokenFromResponse($authenticatedUser);
+
+        return [
+            'user' => $user,
+            'token' => $token,
+        ];
+    }
+
+    protected function createMeditation(?string $name = null, ?int $duration = null): Meditation
+    {
+        return Meditation::create([
+            'title' => $name ?? (string) $this->faker('tr_TR')->words(2, true),
+            'duration' => $duration ?? $this->faker->numberBetween(120, 5400),
+        ]);
+    }
+
+    protected function completeMeditation(Meditation $meditation, User $user, ?Carbon $completedAt = null): UserMeditation
+    {
+        if (!$completedAt) {
+            $completedAt = Carbon::now();
+        }
+
+        return UserMeditation::create([
+            'user_id' => $user->getKey(),
+            'meditation_id' => $meditation->getKey(),
+            'completed_at' => $completedAt->format('Y-m-d H:i:s'),
+        ]);
     }
 }

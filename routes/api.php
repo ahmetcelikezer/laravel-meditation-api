@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Meditation\MeditationController;
+use App\Http\Controllers\Report\ReportController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -27,6 +28,7 @@ Route::prefix('v1')->group(static function () {
     Route::middleware('auth:sanctum')->group(static function () {
         Route::prefix('meditation')->group(static function () {
             Route::post('/complete/{meditation}', [MeditationController::class, 'completeAction']);
+            Route::get('/report/{reportType}', [ReportController::class, 'createReport']);
         });
     });
 });
