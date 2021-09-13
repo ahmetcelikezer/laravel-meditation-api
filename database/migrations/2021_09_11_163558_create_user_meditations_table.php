@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 class CreateUserMeditationsTable extends Migration
@@ -13,6 +14,7 @@ class CreateUserMeditationsTable extends Migration
             $table->foreignUuid('meditation_id');
             $table->foreignUuid('user_id');
             $table->timestamps();
+            $table->timestamp('completed_at')->default(DB::raw('CURRENT_TIMESTAMP'));
         });
     }
 
