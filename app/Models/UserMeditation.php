@@ -12,5 +12,6 @@ class UserMeditation extends Model
     protected $fillable = [
         'user_id',
         'meditation_id',
+        'completed_at',
     ];
 }
