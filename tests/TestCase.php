@@ -23,6 +23,7 @@ abstract class TestCase extends BaseTestCase
     protected const LOGOUT_PATH = '/api/v1/auth/logout';
     protected const COMPLETE_MEDITATION_PATH = '/api/v1/meditation/complete';
     protected const MONTHLY_DAY_REPORT_PATH = '/api/v1/meditation/report/active_days_in_month';
+    protected const DAILY_MEDITATION_DURATION = '/api/v1/meditation/report/daily_meditation_duration';
 
     protected function createUser(?string $email = null, ?string $password = null): User
     {

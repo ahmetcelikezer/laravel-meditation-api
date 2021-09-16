@@ -12,4 +12,11 @@ trait WithReportResponse
             'active_days' => $days,
         ]);
     }
+
+    private function createDailyMeditationDurationReportResponse(array $array): JsonResponse
+    {
+        return response()->json([
+            'daily_duration' => $array,
+        ]);
+    }
 }

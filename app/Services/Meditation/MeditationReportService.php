@@ -16,6 +16,7 @@ class MeditationReportService
     use WithReportResponse;
 
     public const ACTIVE_DAYS_IN_MONTH = 'active_days_in_month';
+    public const DAILY_MEDITATION_DURATION = 'daily_meditation_duration';
 
     public function __construct(private AuthenticationService $authenticationService)
     {
@@ -32,9 +33,41 @@ class MeditationReportService
             return $this->createActiveDaysInMonthResponse($this->createActiveDaysInMonthReport($filters));
         }
 
+        if (self::DAILY_MEDITATION_DURATION === $reportType) {
+            return $this->createDailyMeditationDurationReportResponse($this->createDailyMeditationDurationReport($filters));
+        }
+
         return response()->json([
             'message' => 'Unknown error occurred!',
         ], 500);
+    }
+
+    private function createDailyMeditationDurationReport(array $filters): array
+    {
+        $dates = [];
+
+        $query = DB::table('user_meditations')
+            ->selectRaw('DATE(completed_at) as date, SUM(meditations.duration) totalCount')
+            ->leftJoin('meditations', 'meditations.id', '=', 'user_meditations.meditation_id')
+            ->where('user_meditations.user_id', '=', $this->getCurrentUser()->getKey())
+            ->groupByRaw('DATE(completed_at)')
+        ;
+
+        if (in_array('startDate', $filters, true)) {
+            $query->where('user_meditations.completed_at', '>=', Carbon::parse($filters['startDate']));
+        }
+
+        if (in_array('endDate', $filters, true)) {
+            $query->where('user_meditations.completed_at', '<=', Carbon::parse($filters['endDate']));
+        }
+
+        $durations = $query->get()->pluck('totalCount', 'date')->toArray();
+
+        foreach ($durations as $date => $duration) {
+            $dates[Carbon::parse($date)->toISOString()] = (int) $duration;
+        }
+
+        return $dates;
     }
 
     private function createActiveDaysInMonthReport(array $filters): array
