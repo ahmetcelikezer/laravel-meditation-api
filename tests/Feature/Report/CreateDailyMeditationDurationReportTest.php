@@ -33,9 +33,8 @@ class CreateDailyMeditationDurationReportTest extends TestCase
 
         $expectedDurations = [
             'daily_duration' => [
-                (clone $currentDate)->subDays(7)->toISOString() => $meditation1->getAttribute('duration') + $meditation2->getAttribute('duration'),
-                (clone $currentDate)->subDays(8)->toISOString() => $meditation3->getAttribute('duration'),
-                $currentDate->toISOString() => $meditation5->getAttribute('duration'),
+                (clone $currentDate)->subDays(7)->toDateString() => $meditation1->getAttribute('duration') + $meditation2->getAttribute('duration'),
+                $currentDate->toDateString() => $meditation5->getAttribute('duration'),
             ],
         ];
 

@@ -3,33 +3,48 @@
 namespace App\Http\Controllers\Report;
 
 use App\Http\Controllers\Controller;
-use App\Services\Meditation\Exception\InvalidReportType;
-use App\Services\Meditation\Exception\RequiredFilterNotProvidedException;
-use App\Services\Meditation\MeditationReportService;
+use App\Services\Report\Exception\RequiredFilterNotProvidedException;
+use App\Services\Report\MeditationReportService;
+use App\Traits\Response\WithReportResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class ReportController extends Controller
 {
+    use WithReportResponse;
+
     public function __construct(private MeditationReportService $meditationReportService)
     {
     }
 
     public function createReport(Request $request, string $reportType): JsonResponse
     {
-        try {
-            $report = $this->meditationReportService->getReport($reportType, $request->all());
-        } catch (InvalidReportType $exception) {
-            return response()->json(
-                ['message' => $exception->getMessage()],
-                JsonResponse::HTTP_BAD_REQUEST,
-            );
-        } catch (RequiredFilterNotProvidedException $exception) {
-            return response()->json([
-                'message' => $exception->getMessage(),
-            ], JsonResponse::HTTP_BAD_REQUEST);
+        if (MeditationReportService::DAILY_MEDITATION_DURATION === $reportType) {
+            $dailyMeditationDurationReport = $this->meditationReportService->getDailyMeditationDurationReport($request->all());
+
+            return $this->createDailyMeditationDurationReportResponse($dailyMeditationDurationReport);
         }
 
-        return $report;
+        if (MeditationReportService::ACTIVE_DAYS_IN_MONTH === $reportType) {
+            try {
+                $activeDaysInMonthReport = $this->meditationReportService->getActiveDaysInMonthReport($request->all());
+            } catch (RequiredFilterNotProvidedException $exception) {
+                return $this->createExceptionResponse($exception->getMessage());
+            }
+
+            return $this->createActiveDaysInMonthResponse($activeDaysInMonthReport);
+        }
+
+        if (MeditationReportService::GENERAL_STATISTICS === $reportType) {
+            try {
+                $generalStatisticsReport = $this->meditationReportService->getGeneralStatisticsReport($request->all());
+            } catch (RequiredFilterNotProvidedException $exception) {
+                return $this->createExceptionResponse($exception->getMessage());
+            }
+
+            return $this->createGeneralStatisticsReportResponse($generalStatisticsReport);
+        }
+
+        return $this->createInvalidReportTypeResponse();
     }
 }

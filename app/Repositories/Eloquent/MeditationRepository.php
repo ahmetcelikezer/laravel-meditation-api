@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Repository\Eloquent;
+namespace App\Repositories\Eloquent;
 
 use App\Models\User;
-use App\Repository\MeditationRepositoryInterface;
+use App\Repositories\MeditationRepositoryInterface;
 use Carbon\Carbon;
 
 class MeditationRepository extends BaseRepository implements MeditationRepositoryInterface

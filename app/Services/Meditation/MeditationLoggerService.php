@@ -3,13 +3,13 @@
 namespace App\Services\Meditation;
 
 use App\Models\Meditation;
-use App\Models\UserMeditation;
+use App\Repositories\UserMeditationRepositoryInterface;
 use App\Services\Authentication\AuthenticationService;
 use LogicException;
 
 class MeditationLoggerService
 {
-    public function __construct(private AuthenticationService $authenticationService)
+    public function __construct(private AuthenticationService $authenticationService, private UserMeditationRepositoryInterface $userMeditationRepository)
     {
     }
 
@@ -20,7 +20,7 @@ class MeditationLoggerService
             throw new LogicException('User not found!');
         }
 
-        UserMeditation::firstOrCreate([
+        $this->userMeditationRepository->createIfNotExists([
             'user_id' => $user->getKey(),
             'meditation_id' => $meditation->getKey(),
         ]);

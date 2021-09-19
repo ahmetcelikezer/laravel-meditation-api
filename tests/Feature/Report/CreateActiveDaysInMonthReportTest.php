@@ -40,7 +40,7 @@ class CreateActiveDaysInMonthReportTest extends TestCase
             'active_days' => array_map(static function (UserMeditation $meditation) {
                 $completedAt = Carbon::parse($meditation->getAttribute('completed_at'));
 
-                return $completedAt->toISOString();
+                return $completedAt->toDateString();
             }, $expectedMeditations),
         ]);
     }

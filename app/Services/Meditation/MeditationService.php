@@ -3,13 +3,16 @@
 namespace App\Services\Meditation;
 
 use App\Models\Meditation;
+use App\Repositories\MeditationRepositoryInterface;
 
 class MeditationService
 {
+    public function __construct(private MeditationRepositoryInterface $meditationRepository)
+    {
+    }
+
     public function getById(string $id): ?Meditation
     {
-        return Meditation::where([
-            'id' => $id,
-        ])->first();
+        return $this->meditationRepository->findOneById($id);
     }
 }

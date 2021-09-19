@@ -1,14 +1,21 @@
 <?php
 
-namespace App\Repository\Eloquent;
+namespace App\Repositories\Eloquent;
 
 use App\Models\User;
-use App\Repository\UserMeditationRepositoryInterface;
+use App\Models\UserMeditation;
+use App\Repositories\UserMeditationRepositoryInterface;
 use Carbon\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class UserMeditationRepository extends BaseRepository implements UserMeditationRepositoryInterface
 {
+    public function createIfNotExists(array $attributes): UserMeditation
+    {
+        return $this->model->firstOrCreate($attributes);
+    }
+
     public function findCompletedMeditationCountByUser(User $user, ?Carbon $startDate = null, ?Carbon $endDate = null): int
     {
         $query = $this->model
@@ -46,6 +53,41 @@ class UserMeditationRepository extends BaseRepository implements UserMeditationR
             ) AS _
             ORDER BY streak DESC LIMIT 1;';
 
-        return DB::select(DB::raw($query))[0]->streak;
+        $result = DB::select(DB::raw($query));
+
+        return $result[0]->streak ?? 0;
+    }
+
+    public function findActiveDaysInMonthByUser(User $user, int $year, int $month): Collection
+    {
+        $query = $this->model
+            ->distinct()
+            ->selectRaw('cast(completed_at as date) as date')
+            ->where(['user_id' => $user->getKey()])
+            ->whereMonth('completed_at', '=', $month ?? Carbon::now()->month)
+            ->whereYear('completed_at', '=', $year ?? Carbon::now()->year)
+        ;
+
+        return $query->get();
+    }
+
+    public function findDailyMeditationDurationByUser(User $user, ?Carbon $startDate = null, ?Carbon $endDate = null): Collection
+    {
+        $query = $this->model
+            ->selectRaw('DATE(completed_at) as date, SUM(meditations.duration) totalCount')
+            ->leftJoin('meditations', 'meditations.id', '=', 'user_meditations.meditation_id')
+            ->where('user_meditations.user_id', '=', $user->getKey())
+            ->groupByRaw('DATE(completed_at)')
+        ;
+
+        if ($startDate) {
+            $query->where('user_meditations.completed_at', '>=', $startDate->toDateTimeString());
+        }
+
+        if ($endDate) {
+            $query->where('user_meditations.completed_at', '<=', $endDate->toDateTimeString());
+        }
+
+        return $query->get()->pluck('totalCount', 'date');
     }
 }

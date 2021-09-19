@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Meditation\Exception;
+namespace App\Services\Report\Exception;
 
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 
