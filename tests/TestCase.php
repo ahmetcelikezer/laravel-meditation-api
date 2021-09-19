@@ -24,6 +24,7 @@ abstract class TestCase extends BaseTestCase
     protected const COMPLETE_MEDITATION_PATH = '/api/v1/meditation/complete';
     protected const MONTHLY_DAY_REPORT_PATH = '/api/v1/meditation/report/active_days_in_month';
     protected const DAILY_MEDITATION_DURATION = '/api/v1/meditation/report/daily_meditation_duration';
+    protected const GENERAL_STATISTICS_REPORT_PATH = '/api/v1/meditation/report/general_statistics';
 
     protected function createUser(?string $email = null, ?string $password = null): User
     {

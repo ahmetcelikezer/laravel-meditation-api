@@ -19,4 +19,15 @@ trait WithReportResponse
             'daily_duration' => $array,
         ]);
     }
+
+    private function createGeneralStatisticsReportResponse(int $totalMeditationCount, int $totalMeditationDuration, int $longestConsecutiveDays): JsonResponse
+    {
+        return response()->json([
+            'general_statistics' => [
+                'total_meditation_count' => $totalMeditationCount,
+                'total_meditation_duration' => $totalMeditationDuration,
+                'longest_consecutive_days' => $longestConsecutiveDays,
+            ],
+        ]);
+    }
 }
