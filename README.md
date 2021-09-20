@@ -1,64 +1,78 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+# Laravel Meditation Example App
+You can run this application in Docker Container with `docker-compose up` command on your project path.
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+> Make sure you rename `.env.example` to `.env`. Example environment variables is ready to work on local docker environment.
 
-## About Laravel
+> When you running application inside container, you should execute commands in the container's bash. You can connect to application bash with `docker-compose exec api bash` command.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+> To install dependencies execute `make install_dependencies` or `php composer.phar install` command in `api` container's `bash`.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Running Tests
+This application is covered with e2e/feature tests, you can run tests via `php artisan test` command inside the `api` container's `bash`.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Seeding with example data
+To create meditations, you must execute `php artisan db:seed --class=MeditationSeeder`
 
-## Learning Laravel
+## Endpoints
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### Authentication Endpoints
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+#### Register Endpoint
+To use this application, you should be authenticated first. If you do not have an account, you have to register from this endpoint.
 
-## Laravel Sponsors
+| Method | PATH | Required Parameters |
+| :---: | :---: | :---: |
+| `POST` | /api/v1/register | email: string <br> password: string |
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+#### Login Endpoint
+If you already have an account, you can be authenticated on this endpoint.
 
-### Premium Partners
+| Method | PATH | Required Parameters |
+| :---: | :---: | :---: |
+| `POST` | /api/v1/login | email: string <br> password: string |
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[CMS Max](https://www.cmsmax.com/)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
+#### Logout Endpoint
+If you want to log-out from authenticated account, you can use this endpoint.
 
-## Contributing
+| Method | PATH |
+| :---: | :---: |
+| `POST` | /api/v1/logout |
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Meditation Endpoints
 
-## Code of Conduct
+#### Complete Meditation
+To complete meditation you can use this endpoint with authenticated user's bearer token.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+| Method | PATH | Required Header |
+| :---: | :---: | :---: |
+| `POST` | /api/v1/meditation/complete/{meditation_id} | Authorization: Bearer <token> |
 
-## Security Vulnerabilities
+### Report Endpoints
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+#### General Statistics Endpoint
+General statistics generates 3 different statistics between provided `startDate` and `endDate` as route parameter;
 
-## License
+1. Total meditation count that user completed.
+2. Total meditation duration that user completed.
+3. The longest consecutive day count that user listens to meditation each day.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+| Method | PATH | Required Parameters | Required Header |
+| :---: | :---: | :---: | :---: |
+| `GET` | /api/v1/meditation/report/general_statistics | startDate <br> endDate | Authorization: Bearer <token> |
+
+#### Daily Meditation Duration Endpoint
+Daily meditation duration returns that total meditation duration for each day, for statistics for a specific date range you can use date filter.
+
+When you provide `startDate` or `endDate` or both of it, you can set total meditation duration for each day between 2 dates.
+
+| Method | PATH | Optional Parameters | Required Header |
+| :---: | :---: | :---: | :---: |
+| `GET` | /api/v1/meditation/report/daily_meditation_duration | startDate <br> endDate | Authorization: Bearer <token> |
+
+#### Monthly Meditation Days Endpoint
+Monthly meditation days return a list of days that the user completed meditation in the specified month.
+
+| Method | PATH | Required Parameters | Required Header |
+| :---: | :---: | :---: | :---: |
+| `GET` | /api/v1/meditation/report/active_days_in_month | month <br> year | Authorization: Bearer <token> |
+
